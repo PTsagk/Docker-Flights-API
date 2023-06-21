@@ -1,0 +1,17 @@
+version: "2"
+services:
+mongodb:
+  image: mongo:3.7
+  restart: always
+  container_name: mongodb
+  ports:
+    - 27017:27017
+  volumes:
+    - /home/user/mongodb/data:/data/db
+flask-service:
+  build:
+  context: ./flask
+  restart: always
+  container_name: flash
+  ports:
+    - 5000:5000
