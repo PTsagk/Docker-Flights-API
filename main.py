@@ -6,11 +6,13 @@ from pymongo import MongoClient
 
 from bson import ObjectId, json_util
 
-import json
+import json, os
 
+# Get the host same from docker-compose.yml file and if it can't just use default localhost
+mongodb_hostname = os.environ.get("MONGO_HOSTNAME", "localhost")
 
 # Connect to mongodbContainer
-client = MongoClient("mongodb://localhost:27017")
+client = MongoClient("mongodb://" + mongodb_hostname + ":27017")
 
 # Access the databasae Digital Airlines
 db = client["DigitalAirlines"]
@@ -22,23 +24,26 @@ reservationsCollection = db["reservations"]
 
 
 def insertAdmin():
-    # Check if there are any users in the users collection
-    usersCount = usersCollection.count_documents({})
+    try:
+        # Check if there are any users in the users collection
+        usersCount = usersCollection.count_documents({})
 
-    # If there are no users then the database is empty and we should insert the admin
-    if usersCount == 0:
-        usersCollection.insert_one(
-            {
-                "_id": ObjectId("64918ffabdcd8fc0c87304ce"),
-                "username": "admin",
-                "surname": "admin",
-                "email": "admin@gmail.com",
-                "password": "admin123",
-                "date": "2002",
-                "country": "Greece",
-                "passport_number": "1234567890",
-            }
-        )
+        # If there are no users then the database is empty and we should insert the admin
+        if usersCount == 0:
+            usersCollection.insert_one(
+                {
+                    "_id": ObjectId("64918ffabdcd8fc0c87304ce"),
+                    "username": "admin",
+                    "surname": "admin",
+                    "email": "admin@gmail.com",
+                    "password": "admin123",
+                    "date": "2002",
+                    "country": "Greece",
+                    "passport_number": "1234567890",
+                }
+            )
+    except:
+        print("Can't add admin in the database")
 
 
 app = Flask(__name__)
@@ -46,9 +51,7 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
 def home():
-    # usersCount = usersCollection.count_documents({})
-    users = usersCollection.find({})
-    return json.loads(json_util.dumps(users))
+    return Response("Welcome to Digital Airlines API", status=200)
 
 
 # Register endpoint
@@ -552,43 +555,43 @@ def changeCost():
     # Check if flight exists
     flight = flightsCollection.find_one({"_id": ObjectId(flight_id)})
 
-    # If flight exists try getting the economy ticket cost from the body
-    if flight:
-        try:
-            newEconomyCost = request.json["economyCost"]
-
-        # If it wasn't given in the parameters set it to None
-        except:
-            newEconomyCost = None
-
-        # If it's not none then the admin want's to change the cost for economy ticket
-        if newEconomyCost:
-            try:
-                flightsCollection.find_one_and_update(
-                    {"_id": ObjectId(flight_id)},
-                    {"$set": {"economy_cost": newEconomyCost}},
-                )
-            except:
-                return Response("Something went wrong", status=500)
-
-        # The same for the business ticket cost
-        try:
-            newBusinessCost = request.json["businessCost"]
-        except:
-            newBusinessCost = None
-
-        if newBusinessCost:
-            try:
-                flightsCollection.find_one_and_update(
-                    {"_id": ObjectId(flight_id)},
-                    {"$set": {"business_cost": newBusinessCost}},
-                )
-            except:
-                return Response("Something went wrong", status=500)
-
-        return Response("Costs updated successfully", status=200)
-    else:
+    if not flight:
         return Response("Flight with this id not found", status=404)
+
+    # If flight exists try getting the economy ticket cost from the body
+    try:
+        newEconomyCost = request.json["economyCost"]
+
+    # If it wasn't given in the parameters set it to None
+    except:
+        newEconomyCost = None
+
+    # If it's not none then the admin want's to change the cost for economy ticket
+    if newEconomyCost:
+        try:
+            flightsCollection.find_one_and_update(
+                {"_id": ObjectId(flight_id)},
+                {"$set": {"economy_cost": newEconomyCost}},
+            )
+        except:
+            return Response("Something went wrong", status=500)
+
+    # The same for the business ticket cost
+    try:
+        newBusinessCost = request.json["businessCost"]
+    except:
+        newBusinessCost = None
+
+    if newBusinessCost:
+        try:
+            flightsCollection.find_one_and_update(
+                {"_id": ObjectId(flight_id)},
+                {"$set": {"business_cost": newBusinessCost}},
+            )
+        except:
+            return Response("Something went wrong", status=500)
+
+    return Response("Costs updated successfully", status=200)
 
 
 # Delete flight enpoint
@@ -631,9 +634,10 @@ def getFlightInfo():
         # Check if fligh exists
         flight = flightsCollection.find_one({"_id": ObjectId(flight_id)}, {"_id": 0})
 
-        # If flight exists find all reservations with the same flight_id
         if not flight:
             return Response("No flight found with this id", status=404)
+
+        # If flight exists find all reservations with the same flight_id
         reservations = reservationsCollection.find(
             {"flight_id": flight_id},
             {
@@ -646,7 +650,6 @@ def getFlightInfo():
         if not reservations:
             return Response("No reservetions found for this flight")
 
-        print(reservations)
         totalTickets = 0
         economyTicketsCount = 0
         businessTicketsCount = 0
