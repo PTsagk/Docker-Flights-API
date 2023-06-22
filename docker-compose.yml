@@ -1,0 +1,17 @@
+version: "2"
+services:
+  mongodb:
+    image: mongo
+    restart: always
+    container_name: mongodb
+    ports:
+      - 27017:27017
+    volumes:
+      - "./data:/data/db"
+  flask-service:
+    build:
+      context: ./
+    restart: always
+    container_name: flask
+    ports:
+      - 5000:5000

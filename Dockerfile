@@ -1,7 +1,11 @@
-FROM python
-
-ADD main.py .
-
-RUN pip install flask pymongo
-
-CMD ["python","./main.py"]
+FROM ubuntu:latest
+RUN apt-get update
+RUN apt-get install -y python3 python3-pip
+RUN pip3 install flask pymongo
+RUN mkdir /app
+RUN mkdir -p /app/data
+COPY main.py /app/main.py 
+ADD data /app/data
+EXPOSE 5000
+WORKDIR /app
+ENTRYPOINT [ "python3","-u", "main.py" ]
