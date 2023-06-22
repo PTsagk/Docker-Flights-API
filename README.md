@@ -141,3 +141,28 @@ docker-compose -p "container_name" up
 Επιπλέον χρειάζεται να δηλωθεί και το flight_id σαν query parameter για να δείξει σε ποια πτήση θέλει να γίνει η κράτηση. π.χ.
  #### ``/reservations/create?flight_id=6494c02fb7e772787c0c6310``
  Αν όλα πάνε καλά ο server θα απαντήσει με το μήνυμα "**Reservation Completed**" και status code **200**.
+ ## /reservations/details (GET)
+Αυτό το endpoint παίρνει ως query parameter το reservation_id και επιστρέφει πληροφορίες σχετικά με κάποια συγκεκριμένη κράτηση.
+#### Παράδειγμα
+**``/reservations/details?reservation_id=6494ca21b7e772787c0c6314``** 
+#### Αποτέλεσμα
+```json
+[
+		{
+			"birth_date":  "2002",
+			"email":  "tsagouris500@gmail.com",
+			"flight_id":  "6494c02fb7e772787c0c6310",
+			"passport_number":  "1232131412"
+			"reservation_type":  "economy",
+			"surname":  "tsagouris",
+			"user_id":  "6494ca0ab7e772787c0c6313",
+			"username":  "panagiotis"
+		},
+		{
+			"date":  "20-8-2023",
+			"depart_airport":  "Athens",
+			"destination_airport":  "Italy"
+		}
+]
+```
+
