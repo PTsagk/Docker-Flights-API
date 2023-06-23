@@ -68,18 +68,20 @@ docker-compose -p "container_name" up
 ```
 #### ``/flights?depart="Athens"&destination="Italy"``
 ```json
-[{
-	"_id":{"$oid":  "6494bf4bb7e772787c0c630f"},
-	"date":  "20-10-2023",
-	"depart_airport":  "Athens",
-	"destination_airport":  "Italy"
-},
-{
-	"_id":  {"$oid":  "6494c02fb7e772787c0c6310"},
-	"date": "20-8-2023",
-	"depart_airport":  "Athens",
-	"destination_airport":  "Italy"
-}]
+[
+	{
+		"_id":{"$oid":  "6494bf4bb7e772787c0c630f"},
+		"date":  "20-10-2023",
+		"depart_airport":  "Athens",
+		"destination_airport":  "Italy"
+	},
+	{
+		"_id":  {"$oid":  "6494c02fb7e772787c0c6310"},
+		"date": "20-8-2023",
+		"depart_airport":  "Athens",
+		"destination_airport":  "Italy"
+	}
+]
 ```
 
 #### ``/flights?date=6-7-2023``
@@ -258,7 +260,7 @@ docker-compose -p "container_name" up
 		"total business tickets booked":  0,
 		"total economy tickets booked":  1,
 		"total tickets":  1
-		},
+	},
 	[
 		{
 			"reservation_type":  "economy",
