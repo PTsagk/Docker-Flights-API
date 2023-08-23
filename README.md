@@ -1,4 +1,4 @@
-# YpoxreotikiErgasia23_E20164_Tsagkouris_Panagiotis
+# Docker Flights API
 
 
 ## Διαδικασία Εκκίνησης
